@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AlignPro Elite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .section { margin-bottom: 25px; }
+        label { display: block; margin-top: 10px; }
+        input, select { width: 100%; padding: 8px; margin-top: 4px; }
+        .result { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>AlignPro Elite - Shaft Alignment Tool (Inches)</h1>
+
+    <div class="section">
+        <h2>Machine Dimensions</h2>
+        <label for="frontFootDist">Front Foot to Dial (inches):</label>
+        <input type="number" id="frontFootDist">
+
+        <label for="rearFootDist">Rear Foot to Dial (inches):</label>
+        <input type="number" id="rearFootDist">
+    </div>
+
+    <div class="section">
+        <h2>Thermal Growth</h2>
+        <label for="enableGrowth">Enable Thermal Growth:</label>
+        <select id="enableGrowth">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <label for="motorTemp">Motor Temp Rise (°F):</label>
+        <input type="number" id="motorTemp">
+
+        <label for="motorHeight">Motor Foot to Shaft Centerline (inches):</label>
+        <input type="number" id="motorHeight">
+
+        <label for="motorMaterial">Motor Material:</label>
+        <select id="motorMaterial">
+            <option value="steel">Steel (6.5e-6)</option>
+            <option value="cast_iron">Cast Iron (5.5e-6)</option>
+            <option value="ss316">Stainless Steel 316 (9.6e-6)</option>
+        </select>
+
+        <label for="pumpTemp">Pump Temp Rise (°F):</label>
+        <input type="number" id="pumpTemp">
+
+        <label for="pumpHeight">Pump Foot to Shaft Centerline (inches):</label>
+        <input type="number" id="pumpHeight">
+
+        <label for="pumpMaterial">Pump Material:</label>
+        <select id="pumpMaterial">
+            <option value="steel">Steel (6.5e-6)</option>
+            <option value="cast_iron">Cast Iron (5.5e-6)</option>
+            <option value="ss316">Stainless Steel 316 (9.6e-6)</option>
+        </select>
+    </div>
+
+    <div class="section">
+        <h2>Dial Readings (Corrected for Sag)</h2>
+        <label>Pump Mounted Dial Reading at 12 o'clock (inches):</label>
+        <input type="number" id="dial12">
+
+        <label>Pump Mounted Dial Reading at 6 o'clock (inches):</label>
+        <input type="number" id="dial6">
+
+        <label>Motor Mounted Dial Reading at 3 o'clock (inches):</label>
+        <input type="number" id="dial3">
+
+        <label>Motor Mounted Dial Reading at 9 o'clock (inches):</label>
+        <input type="number" id="dial9">
+
+        <label>Pump Mounted Dial Sag (inches):</label>
+        <input type="number" id="pumpSag">
+
+        <label>Motor Mounted Dial Sag (inches):</label>
+        <input type="number" id="motorSag">
+    </div>
+
+    <button onclick="calculate()">Calculate Alignment</button>
+
+    <div class="result" id="results"></div>
+
+    <script>
+        function getCTE(material) {
+            if (material === "steel") return 6.5e-6;
+            if (material === "cast_iron") return 5.5e-6;
+            if (material === "ss316") return 9.6e-6;
+            return 6.5e-6;
+        }
+
+        function calculate() {
+            const dial12 = parseFloat(document.getElementById("dial12").value) || 0;
+            const dial6 = parseFloat(document.getElementById("dial6").value) || 0;
+            const dial3 = parseFloat(document.getElementById("dial3").value) || 0;
+            const dial9 = parseFloat(document.getElementById("dial9").value) || 0;
+            const pumpSag = parseFloat(document.getElementById("pumpSag").value) || 0;
+            const motorSag = parseFloat(document.getElementById("motorSag").value) || 0;
+
+            const correctedVertical = dial6 - dial12 - pumpSag;
+            const correctedHorizontal = dial3 - dial9 - motorSag;
+
+            const front = parseFloat(document.getElementById("frontFootDist").value) || 0;
+            const rear = parseFloat(document.getElementById("rearFootDist").value) || 0;
+            const base = front + rear;
+
+            const VA = (correctedVertical / base).toFixed(5);
+            const HA = (correctedHorizontal / base).toFixed(5);
+            const VO = correctedVertical.toFixed(4);
+            const HO = correctedHorizontal.toFixed(4);
+
+            let result = `<h3>Alignment Results</h3>`;
+            result += `Vertical Angularity (VA): ${VA} in/in<br>`;
+            result += `Vertical Offset (VO): ${VO} in<br>`;
+            result += `Horizontal Angularity (HA): ${HA} in/in<br>`;
+            result += `Horizontal Offset (HO): ${HO} in<br>`;
+
+            const growthEnabled = document.getElementById("enableGrowth").value === "yes";
+            if (growthEnabled) {
+                const motorCTE = getCTE(document.getElementById("motorMaterial").value);
+                const pumpCTE = getCTE(document.getElementById("pumpMaterial").value);
+                const motorTemp = parseFloat(document.getElementById("motorTemp").value) || 0;
+                const motorHeight = parseFloat(document.getElementById("motorHeight").value) || 0;
+                const pumpTemp = parseFloat(document.getElementById("pumpTemp").value) || 0;
+                const pumpHeight = parseFloat(document.getElementById("pumpHeight").value) || 0;
+
+                const motorGrowth = motorCTE * motorTemp * motorHeight;
+                const pumpGrowth = pumpCTE * pumpTemp * pumpHeight;
+                const delta = (motorGrowth - pumpGrowth).toFixed(6);
+
+                result += `<br><strong>Thermal Growth Compensation</strong><br>`;
+                result += `Motor Growth: ${motorGrowth.toFixed(6)} in<br>`;
+                result += `Pump Growth: ${pumpGrowth.toFixed(6)} in<br>`;
+                result += `Thermal Growth Difference: ${delta} in`;
+            }
+
+            document.getElementById("results").innerHTML = result;
+        }
+    </script>
+</body>
+</html>
