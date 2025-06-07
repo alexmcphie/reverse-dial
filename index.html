@@ -1,43 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#317EFB" />
   <link rel="manifest" href="manifest.json">
-  <title>Reverse Dial Calculator</title>
+  <title>Pro Shaft Alignment Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      background: #f7f7f7;
+      background: #f4f6f8;
     }
     h2 {
       text-align: center;
     }
-    input, button {
-      font-size: 18px;
+    input, select, button {
+      font-size: 16px;
       padding: 10px;
-      margin: 8px 0;
+      margin: 5px 0;
       width: 100%;
+      box-sizing: border-box;
+    }
+    .section {
+      background: #ffffff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
     }
     .result {
       font-weight: bold;
-      margin-top: 20px;
+      white-space: pre-line;
+      background: #e9ffe9;
+      padding: 10px;
+      border: 1px solid #a3d7a3;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <h2>Reverse Dial Calculator</h2>
-  <input id="A0" placeholder="Front Dial 0°" type="number" step="any">
-  <input id="A180" placeholder="Front Dial 180°" type="number" step="any">
-  <input id="B0" placeholder="Rear Dial 0°" type="number" step="any">
-  <input id="B180" placeholder="Rear Dial 180°" type="number" step="any">
-  <input id="D" placeholder="Distance Between Dials (D)" type="number" step="any">
-  <input id="F1" placeholder="Front Dial to Front Foot (F1)" type="number" step="any">
-  <input id="F2" placeholder="Rear Dial to Rear Foot (F2)" type="number" step="any">
-  <button onclick="calculate()">Calculate</button>
-  <div class="result" id="output"></div>
+  <h2>Pro Shaft Alignment Tool</h2>
+
+  <div class="section">
+    <h3>🧾 Dial Readings</h3>
+    <input id="A0" placeholder="Front Dial 0°" type="number" step="any">
+    <input id="A180" placeholder="Front Dial 180°" type="number" step="any">
+    <input id="B0" placeholder="Rear Dial 0°" type="number" step="any">
+    <input id="B180" placeholder="Rear Dial 180°" type="number" step="any">
+    <input id="sag" placeholder="Dial Sag (mils)" type="number" step="any">
+  </div>
+
+  <div class="section">
+    <h3>📏 Machine Geometry</h3>
+    <input id="D" placeholder="Distance Between Dials (in)" type="number" step="any">
+    <input id="F1" placeholder="Front Dial to Front Foot (in)" type="number" step="any">
+    <input id="F2" placeholder="Rear Dial to Rear Foot (in)" type="number" step="any">
+    <input id="coupling" placeholder="Coupling Diameter (in)" type="number" step="any">
+    <input id="rpm" placeholder="RPM" type="number" step="any">
+  </div>
+
+  <div class="section">
+    <h3>🌡 Thermal Growth</h3>
+    <input id="shaftLength" placeholder="Shaft Length (in)" type="number" step="any">
+    <input id="tempInstall" placeholder="Installation Temp (°C)" type="number" step="any">
+    <input id="tempOperating" placeholder="Operating Temp (°C)" type="number" step="any">
+    <select id="material">
+      <option value="17">316 Stainless Steel</option>
+      <option value="10.8">Cast Iron</option>
+      <option value="12">Cast Steel</option>
+    </select>
+  </div>
+
+  <button onclick="calculate()">🔍 Calculate Alignment</button>
+
+  <div class="section result" id="output"></div>
+
   <script>
     function calculate() {
       const A0 = parseFloat(document.getElementById('A0').value);
@@ -47,19 +85,40 @@
       const D = parseFloat(document.getElementById('D').value);
       const F1 = parseFloat(document.getElementById('F1').value);
       const F2 = parseFloat(document.getElementById('F2').value);
+      const sag = parseFloat(document.getElementById('sag').value);
+      const shaftLength = parseFloat(document.getElementById('shaftLength').value);
+      const tempInstall = parseFloat(document.getElementById('tempInstall').value);
+      const tempOperating = parseFloat(document.getElementById('tempOperating').value);
+      const alpha = parseFloat(document.getElementById('material').value);
+      const coupling = parseFloat(document.getElementById('coupling').value);
+      const rpm = parseFloat(document.getElementById('rpm').value);
 
-      if ([A0, A180, B0, B180, D, F1, F2].some(isNaN)) {
+      if ([A0, A180, B0, B180, D, F1, F2, sag, shaftLength, tempInstall, tempOperating, alpha, coupling, rpm].some(isNaN)) {
         document.getElementById('output').innerText = "Please fill in all fields.";
         return;
       }
 
-      const offset = (A0 - A180) / 2;
+      const offset = ((A0 - A180) / 2) - sag;
       const angularity = ((A0 - A180) - (B0 - B180)) / D;
-      const shim_front = offset + (angularity * F1);
-      const shim_rear = offset + (angularity * (F1 + F2));
+      const shim_front = offset + angularity * F1;
+      const shim_rear = offset + angularity * (F1 + F2);
+
+      const deltaT = tempOperating - tempInstall;
+      const growth_mm = shaftLength * 0.0254 * alpha * deltaT / 1000000;
+      const growth_mils = growth_mm * 39.37 * 1000;
+
+      // Tolerance check (simplified ANSI estimate)
+      let tolerance = 0.001 * rpm < 1800 ? 2.0 : 1.0;  // simple mock logic
+      const withinTolerance = Math.abs(offset) <= tolerance && Math.abs(angularity * coupling) <= tolerance;
 
       document.getElementById('output').innerText =
-        `Offset: ${offset.toFixed(4)}\nShim Front: ${shim_front.toFixed(4)}\nShim Rear: ${shim_rear.toFixed(4)}`;
+        `📏 Offset (w/ sag): ${offset.toFixed(3)} mils\n` +
+        `📐 Angularity: ${angularity.toFixed(3)} mils/in\n` +
+        `🛠 Shim Front Foot: ${shim_front.toFixed(3)} mils\n` +
+        `🛠 Shim Rear Foot: ${shim_rear.toFixed(3)} mils\n\n` +
+        `🔥 Thermal Growth at Coupling: ${growth_mils.toFixed(2)} mils\n` +
+        `📊 ANSI Tolerance: ±${tolerance.toFixed(2)} mils\n` +
+        (withinTolerance ? "✅ Alignment is WITHIN tolerance" : "❌ Alignment is OUT OF tolerance");
     }
   </script>
 </body>
