@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AlignPro Elite — Full Tool</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, padding: 20px; background: #f0f4f8; }
+    h1, h2 { color: #004080; }
+    .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; margin-top: 10px; }
+    .result { background: #e6f2ff; padding: 15px; border-radius: 6px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>AlignPro Elite — Reverse Dial Alignment Tool</h1>
+
+  <div class="section">
+    <h2>1️⃣ Machine Dimensions (inches)</h2>
+    <label>Distance from motor rear foot to front foot:</label>
+    <input type="number" id="rearFoot">
+    <label>Distance from front foot to dial indicators:</label>
+    <input type="number" id="frontFoot">
+  </div>
+
+  <div class="section">
+    <h2>2️⃣ Thermal Growth (Optional)</h2>
+    <label><input type="checkbox" id="enableGrowth"> Enable Thermal Growth Compensation</label>
+    <label>Motor Material:</label>
+    <select id="motorMat">
+      <option value="steel">Carbon Steel</option>
+      <option value="castiron">Cast Iron</option>
+      <option value="ss316">Stainless 316</option>
+    </select>
+    <label>Motor Temperature Rise (°F):</label><input type="number" id="motorTemp">
+    <label>Motor Foot Height to Shaft (in):</label><input type="number" id="motorHeight">
+
+    <label>Pump Material:</label>
+    <select id="pumpMat">
+      <option value="steel">Carbon Steel</option>
+      <option value="castiron">Cast Iron</option>
+      <option value="ss316">Stainless 316</option>
+    </select>
+    <label>Pump Temperature Rise (°F):</label><input type="number" id="pumpTemp">
+    <label>Pump Foot Height to Shaft (in):</label><input type="number" id="pumpHeight">
+  </div>
+
+  <div class="section">
+    <h2>3️⃣ Dial Readings (inches)</h2>
+    <label>12 o’clock reading:</label><input type="number" id="dial12">
+    <label>6 o’clock reading:</label><input type="number" id="dial6">
+    <label>3 o’clock reading:</label><input type="number" id="dial3">
+    <label>9 o’clock reading:</label><input type="number" id="dial9">
+    <label>Pump Mounted Dial Sag (in):</label><input type="number" id="sagPump">
+    <label>Motor Mounted Dial Sag (in):</label><input type="number" id="sagMotor">
+  </div>
+
+  <button onclick="calculate()">Calculate Alignment</button>
+
+  <div class="result" id="results">Awaiting input...</div>
+
+  <script>
+    function getCTE(material) {
+      if (material === 'steel') return 6.5e-6;
+      if (material === 'castiron') return 5.5e-6;
+      if (material === 'ss316') return 9.6e-6;
+      return 6.5e-6;
+    }
+
+    function calculate() {
+      const d12 = parseFloat(document.getElementById('dial12').value) || 0;
+      const d6 = parseFloat(document.getElementById('dial6').value) || 0;
+      const d3 = parseFloat(document.getElementById('dial3').value) || 0;
+      const d9 = parseFloat(document.getElementById('dial9').value) || 0;
+      const sagP = parseFloat(document.getElementById('sagPump').value) || 0;
+      const sagM = parseFloat(document.getElementById('sagMotor').value) || 0;
+      const front = parseFloat(document.getElementById('frontFoot').value) || 0;
+      const rear = parseFloat(document.getElementById('rearFoot').value) || 0;
+      const base = front + rear;
+
+      const VO = (d6 - d12 - sagP);
+      const VA = VO / base;
+      const HO = (d3 - d9 - sagM);
+      const HA = HO / base;
+
+      const rearShim = -VA * rear - VO;
+      const frontShim = rearShim + VO;
+
+      let result = `<h3>📊 Alignment Results</h3>`;
+      result += `Vertical Offset (VO): ${VO.toFixed(4)} in<br>`;
+      result += `Vertical Angularity (VA): ${VA.toFixed(5)} in/in<br>`;
+      result += `Horizontal Offset (HO): ${HO.toFixed(4)} in<br>`;
+      result += `Horizontal Angularity (HA): ${HA.toFixed(5)} in/in<br><br>`;
+
+      result += `<strong>🛠️ Shim Corrections</strong><br>`;
+      result += `Rear Foot Shim: ${rearShim.toFixed(4)} in<br>`;
+      result += `Front Foot Shim: ${frontShim.toFixed(4)} in<br><br>`;
+
+      const tolerance = 0.002; // example threshold
+      const inTolerance = Math.abs(VO) < tolerance && Math.abs(HO) < tolerance;
+      result += `✅ Alignment Status: <strong>${inTolerance ? 'PASS ✅' : 'FAIL ❌'}</strong><br>`;
+
+      if (document.getElementById('enableGrowth').checked) {
+        const motorMat = document.getElementById('motorMat').value;
+        const pumpMat = document.getElementById('pumpMat').value;
+        const motorCTE = getCTE(motorMat);
+        const pumpCTE = getCTE(pumpMat);
+        const motorTemp = parseFloat(document.getElementById('motorTemp').value) || 0;
+        const pumpTemp = parseFloat(document.getElementById('pumpTemp').value) || 0;
+        const motorHeight = parseFloat(document.getElementById('motorHeight').value) || 0;
+        const pumpHeight = parseFloat(document.getElementById('pumpHeight').value) || 0;
+
+        const motorGrowth = motorCTE * motorTemp * motorHeight;
+        const pumpGrowth = pumpCTE * pumpTemp * pumpHeight;
+        const delta = motorGrowth - pumpGrowth;
+
+        result += `<br><strong>🌡️ Thermal Growth</strong><br>`;
+        result += `Motor Growth: ${motorGrowth.toFixed(6)} in<br>`;
+        result += `Pump Growth: ${pumpGrowth.toFixed(6)} in<br>`;
+        result += `Thermal Growth Difference: ${delta.toFixed(6)} in`;
+      }
+
+      document.getElementById("results").innerHTML = result;
+    }
+  </script>
+</body>
+</html>
