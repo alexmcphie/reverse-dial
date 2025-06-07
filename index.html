@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#317EFB" />
+  <link rel="manifest" href="manifest.json">
+  <title>Reverse Dial Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      font-size: 18px;
+      padding: 10px;
+      margin: 8px 0;
+      width: 100%;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Reverse Dial Calculator</h2>
+  <input id="A0" placeholder="Front Dial 0°" type="number" step="any">
+  <input id="A180" placeholder="Front Dial 180°" type="number" step="any">
+  <input id="B0" placeholder="Rear Dial 0°" type="number" step="any">
+  <input id="B180" placeholder="Rear Dial 180°" type="number" step="any">
+  <input id="D" placeholder="Distance Between Dials (D)" type="number" step="any">
+  <input id="F1" placeholder="Front Dial to Front Foot (F1)" type="number" step="any">
+  <input id="F2" placeholder="Rear Dial to Rear Foot (F2)" type="number" step="any">
+  <button onclick="calculate()">Calculate</button>
+  <div class="result" id="output"></div>
+  <script>
+    function calculate() {
+      const A0 = parseFloat(document.getElementById('A0').value);
+      const A180 = parseFloat(document.getElementById('A180').value);
+      const B0 = parseFloat(document.getElementById('B0').value);
+      const B180 = parseFloat(document.getElementById('B180').value);
+      const D = parseFloat(document.getElementById('D').value);
+      const F1 = parseFloat(document.getElementById('F1').value);
+      const F2 = parseFloat(document.getElementById('F2').value);
+
+      if ([A0, A180, B0, B180, D, F1, F2].some(isNaN)) {
+        document.getElementById('output').innerText = "Please fill in all fields.";
+        return;
+      }
+
+      const offset = (A0 - A180) / 2;
+      const angularity = ((A0 - A180) - (B0 - B180)) / D;
+      const shim_front = offset + (angularity * F1);
+      const shim_rear = offset + (angularity * (F1 + F2));
+
+      document.getElementById('output').innerText =
+        `Offset: ${offset.toFixed(4)}\nShim Front: ${shim_front.toFixed(4)}\nShim Rear: ${shim_rear.toFixed(4)}`;
+    }
+  </script>
+</body>
+</html>
