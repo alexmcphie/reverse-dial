@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Shaft Alignment Tool</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: Arial; margin: 20px; background: #f4f4f4; }
+    h1 { color: #007bff; }
+    label { display: block; margin-top: 10px; }
+    input, select { width: 100%; padding: 5px; margin-top: 5px; }
+    .section { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Pro Shaft Alignment Tool</h1>
+
+  <div class="section">
+    <h2>🧰 Machine Dimensions</h2>
+    <label>Front Foot to Rear Foot Distance (mm):</label>
+    <input type="number" id="footDistance">
+    <label>Dial Span (Pump to Motor Shaft):</label>
+    <input type="number" id="dialSpan">
+  </div>
+
+  <div class="section">
+    <h2>🌡️ Thermal Growth</h2>
+    <label><input type="checkbox" id="enableThermal"> Enable Thermal Growth Compensation</label>
+    <label>Motor Material:</label>
+    <select id="motorMaterial">
+      <option value="steel">Carbon Steel</option>
+      <option value="ss316">Stainless 316</option>
+      <option value="castiron">Cast Iron</option>
+    </select>
+    <label>Motor Foot to Shaft Centerline (mm):</label>
+    <input type="number" id="motorHeight">
+    <label>Motor Temperature Rise (°C):</label>
+    <input type="number" id="motorTemp">
+
+    <label>Pump Material:</label>
+    <select id="pumpMaterial">
+      <option value="steel">Carbon Steel</option>
+      <option value="ss316">Stainless 316</option>
+      <option value="castiron">Cast Iron</option>
+    </select>
+    <label>Pump Foot to Shaft Centerline (mm):</label>
+    <input type="number" id="pumpHeight">
+    <label>Pump Temperature Rise (°C):</label>
+    <input type="number" id="pumpTemp">
+  </div>
+
+  <div class="section">
+    <h2>📍 Dial Readings</h2>
+    <label>12 o’clock:</label><input type="number" id="dial12">
+    <label>3 o’clock:</label><input type="number" id="dial3">
+    <label>6 o’clock:</label><input type="number" id="dial6">
+    <label>9 o’clock:</label><input type="number" id="dial9">
+    <label>Left Dial Sag (mm):</label><input type="number" id="sagLeft">
+    <label>Right Dial Sag (mm):</label><input type="number" id="sagRight">
+  </div>
+
+  <div class="section">
+    <h2>📊 Results</h2>
+    <p>Coming soon: VA, VO, HA, HO, Shaft Diagram, Correction Arrows, Pass/Fail</p>
+  </div>
+
+  <script>
+    console.log("Core UI loaded. Full logic and visual module pending final integration.");
+  </script>
+</body>
+</html>
