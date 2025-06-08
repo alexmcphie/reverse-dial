@@ -5,15 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AlignPro Elite - Reverse Indicator Method</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
-    h1 { text-align: center; color: #003366; }
-    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select { width: 100%; padding: 6px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; font-weight: bold; }
-    .results { background: #eef; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1.1em; }
-    canvas { display: block; margin: 20px auto; border: 1px solid #ccc; }
-    .smiley { font-size: 2rem; text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 5px;
+      margin: 5px 0 15px 0;
+    }
+    .section {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .results {
+      background: #eef;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 5px;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -21,132 +46,155 @@
 
   <div class="section">
     <h2>Geometry & Readings</h2>
-    <label>Distance between contact points (A) [in]: <input id="a" type="number" step="0.001" value="6"></label>
-    <label>Distance to front foot (B) [in]: <input id="b" type="number" step="0.001" value="11.5"></label>
-    <label>Distance to rear foot (C) [in]: <input id="c" type="number" step="0.001" value="20"></label>
+    <label>Distance between contact points (A) [in]:</label>
+    <input id="distA" type="number" step="0.001">
 
-    <h3>Motor-Mounted Dial Readings</h3>
-    <label>12 o'clock: <input id="motor12" type="number" step="0.001"></label>
-    <label>3 o'clock: <input id="motor3" type="number" step="0.001"></label>
-    <label>6 o'clock: <input id="motor6" type="number" step="0.001"></label>
-    <label>9 o'clock: <input id="motor9" type="number" step="0.001"></label>
+    <label>Distance to front foot (B) [in]:</label>
+    <input id="distB" type="number" step="0.001">
 
-    <h3>Pump-Mounted Dial Readings</h3>
-    <label>12 o'clock: <input id="pump12" type="number" step="0.001"></label>
-    <label>3 o'clock: <input id="pump3" type="number" step="0.001"></label>
-    <label>6 o'clock: <input id="pump6" type="number" step="0.001"></label>
-    <label>9 o'clock: <input id="pump9" type="number" step="0.001"></label>
+    <label>Distance to rear foot (C) [in]:</label>
+    <input id="distC" type="number" step="0.001">
+
+    <label>Machine RPM:</label>
+    <input id="rpm" type="number">
+  </div>
+
+  <div class="section">
+    <h2>Motor-Mounted Dial Readings</h2>
+    <label>12 o'clock:</label><input id="mm12" type="number" step="0.001">
+    <label>3 o'clock:</label><input id="mm3" type="number" step="0.001">
+    <label>6 o'clock:</label><input id="mm6" type="number" step="0.001">
+    <label>9 o'clock:</label><input id="mm9" type="number" step="0.001">
+  </div>
+
+  <div class="section">
+    <h2>Pump-Mounted Dial Readings</h2>
+    <label>12 o'clock:</label><input id="pm12" type="number" step="0.001">
+    <label>3 o'clock:</label><input id="pm3" type="number" step="0.001">
+    <label>6 o'clock:</label><input id="pm6" type="number" step="0.001">
+    <label>9 o'clock:</label><input id="pm9" type="number" step="0.001">
   </div>
 
   <div class="section">
     <h2>Thermal Growth Compensation</h2>
-    <label><input type="checkbox" id="enableThermal"> Enable Thermal Growth</label>
-    <label>Motor Height to Shaft Center (in): <input id="motorHeight" type="number" step="0.001"></label>
-    <label>Motor Temp Rise (°F): <input id="motorTemp" type="number"></label>
-    <label>Motor Material:
-      <select id="motorMat">
-        <option value="6.5e-6">Cast Steel</option>
-        <option value="5.5e-6">Cast Iron</option>
-        <option value="9.6e-6">Stainless Steel 316</option>
-      </select>
-    </label>
-    <label>Pump Height to Shaft Center (in): <input id="pumpHeight" type="number" step="0.001"></label>
-    <label>Pump Temp Rise (°F): <input id="pumpTemp" type="number"></label>
-    <label>Pump Material:
-      <select id="pumpMat">
-        <option value="6.5e-6">Cast Steel</option>
-        <option value="5.5e-6">Cast Iron</option>
-        <option value="9.6e-6">Stainless Steel 316</option>
-      </select>
-    </label>
+    <label><input id="enableThermal" type="checkbox"> Enable Thermal Growth</label><br>
+
+    <label>Motor Height to Shaft Center (in):</label>
+    <input id="motorHeight" type="number" step="0.001">
+
+    <label>Motor Temp Rise (°F):</label>
+    <input id="motorTempRise" type="number">
+
+    <label>Motor Material:</label>
+    <select id="motorMaterial">
+      <option>Cast Steel</option>
+      <option>Cast Iron</option>
+      <option>Stainless Steel 316</option>
+    </select>
+
+    <label>Pump Height to Shaft Center (in):</label>
+    <input id="pumpHeight" type="number" step="0.001">
+
+    <label>Pump Temp Rise (°F):</label>
+    <input id="pumpTempRise" type="number">
+
+    <label>Pump Material:</label>
+    <select id="pumpMaterial">
+      <option>Cast Steel</option>
+      <option>Cast Iron</option>
+      <option>Stainless Steel 316</option>
+    </select>
   </div>
 
   <div class="section">
-    <button onclick="calculateReverseAlignment()">Calculate Alignment</button>
+    <button onclick="calculateAlignment()">Calculate Alignment</button>
   </div>
 
-  <div class="section results">
-    <h3>Results:</h3>
-    <p>Front Foot Shim (S1): <span id="s1"></span> in</p>
-    <p>Rear Foot Shim (S2): <span id="s2"></span> in</p>
-    <p class="smiley" id="smiley"></p>
-    <canvas id="shaftCanvas" width="600" height="200"></canvas>
+  <div class="section results" id="results">
+    <h3>Results</h3>
+    <p>Awaiting input...</p>
   </div>
+
+  <canvas id="alignmentGraph" width="500" height="250"></canvas>
 
   <script>
-    function calculateReverseAlignment() {
-      const A = parseFloat(document.getElementById('a').value);
-      const B = parseFloat(document.getElementById('b').value);
-      const C = parseFloat(document.getElementById('c').value);
-      const D1 = parseFloat(document.getElementById('motor6').value); // Simulate D1 from motor 6 o'clock
-      const D2 = parseFloat(document.getElementById('pump6').value);  // Simulate D2 from pump 6 o'clock
+    const thermalExpansionCoefficients = {
+      "Cast Steel": 6.5e-6,
+      "Cast Iron": 5.5e-6,
+      "Stainless Steel 316": 9.6e-6
+    };
 
-      const enableThermal = document.getElementById('enableThermal').checked;
-      let thermalOffset = 0;
+    function calculateAlignment() {
+      const A = parseFloat(document.getElementById("distA").value);
+      const B = parseFloat(document.getElementById("distB").value);
+      const C = parseFloat(document.getElementById("distC").value);
+      const rpm = parseFloat(document.getElementById("rpm").value);
 
+      const mm6 = parseFloat(document.getElementById("mm6").value);
+      const pm6 = parseFloat(document.getElementById("pm6").value);
+
+      const enableThermal = document.getElementById("enableThermal").checked;
+      const mHeight = parseFloat(document.getElementById("motorHeight").value);
+      const mRise = parseFloat(document.getElementById("motorTempRise").value);
+      const mMat = document.getElementById("motorMaterial").value;
+      const pHeight = parseFloat(document.getElementById("pumpHeight").value);
+      const pRise = parseFloat(document.getElementById("pumpTempRise").value);
+      const pMat = document.getElementById("pumpMaterial").value;
+
+      const delta = mm6 - pm6;
+      const VA = delta / A;
+      const S1 = VA * B;
+      const S2 = VA * C;
+      const VO = S1;
+
+      const HA = (parseFloat(document.getElementById("mm3").value) - parseFloat(document.getElementById("mm9").value)) / A;
+      const HO = (parseFloat(document.getElementById("mm3").value) + parseFloat(document.getElementById("mm9").value)) / 2;
+
+      let tMotor = 0, tPump = 0, tDiff = 0;
       if (enableThermal) {
-        const mh = parseFloat(document.getElementById('motorHeight').value);
-        const mt = parseFloat(document.getElementById('motorTemp').value);
-        const mm = parseFloat(document.getElementById('motorMat').value);
-
-        const ph = parseFloat(document.getElementById('pumpHeight').value);
-        const pt = parseFloat(document.getElementById('pumpTemp').value);
-        const pm = parseFloat(document.getElementById('pumpMat').value);
-
-        if (!isNaN(mh) && !isNaN(mt) && !isNaN(mm) && !isNaN(ph) && !isNaN(pt) && !isNaN(pm)) {
-          const motorGrowth = mh * mt * mm;
-          const pumpGrowth = ph * pt * pm;
-          thermalOffset = motorGrowth - pumpGrowth;
-        }
+        tMotor = thermalExpansionCoefficients[mMat] * mRise * mHeight;
+        tPump = thermalExpansionCoefficients[pMat] * pRise * pHeight;
+        tDiff = tPump - tMotor;
       }
 
-      if (isNaN(A) || isNaN(B) || isNaN(C) || isNaN(D1) || isNaN(D2)) {
-        alert('Please enter all alignment values correctly.');
-        return;
-      }
+      const voTol = rpm >= 3600 ? 0.001 : rpm >= 1800 ? 0.002 : 0.003;
+      const vaTol = 0.001;
+      const hoTol = voTol;
+      const haTol = 0.001;
 
-      let s1 = ((B + A) * ((D1 + D2 + 2) / (D1 + 2))) - 1;
-      let s2 = ((C + A) * ((D1 + D2 + 2) / (D1 + 2))) - 1;
+      const inTolerance = Math.abs(VO) <= voTol && Math.abs(VA) <= vaTol && Math.abs(HO) <= hoTol && Math.abs(HA) <= haTol;
 
-      s1 += thermalOffset;
-      s2 += thermalOffset;
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `
+        <p>Front Foot Shim (S1): ${(S1 - tDiff).toFixed(4)} in</p>
+        <p>Rear Foot Shim (S2): ${(S2 - tDiff).toFixed(4)} in</p>
+        <p>Thermal Growth Motor: ${tMotor.toFixed(5)} in</p>
+        <p>Thermal Growth Pump: ${tPump.toFixed(5)} in</p>
+        <p>Thermal Growth Diff: ${tDiff.toFixed(5)} in</p>
+        <p>VO: ${VO.toFixed(4)} in</p>
+        <p>VA: ${VA.toFixed(4)} in/in</p>
+        <p>HO: ${HO.toFixed(4)} in</p>
+        <p>HA: ${HA.toFixed(4)} in/in</p>
+        <p>${inTolerance ? "✅ In Tolerance 😊" : "😟 (Out of Tolerance)"}</p>
+      `;
 
-      document.getElementById('s1').textContent = s1.toFixed(4);
-      document.getElementById('s2').textContent = s2.toFixed(4);
-
-      const smiley = document.getElementById('smiley');
-      if (Math.abs(s1) <= 0.002 && Math.abs(s2) <= 0.002) {
-        smiley.textContent = '😊 (In Tolerance)';
-      } else {
-        smiley.textContent = '😟 (Out of Tolerance)';
-      }
-
-      drawShaft(s1, s2);
-    }
-
-    function drawShaft(s1, s2) {
-      const canvas = document.getElementById('shaftCanvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const centerY = 100;
-      const frontX = 150;
-      const rearX = 450;
-      const scale = 500;
-
-      const y1 = centerY - s1 * scale;
-      const y2 = centerY - s2 * scale;
-
+      const ctx = document.getElementById("alignmentGraph").getContext("2d");
+      ctx.clearRect(0, 0, 500, 250);
       ctx.beginPath();
-      ctx.moveTo(frontX, y1);
-      ctx.lineTo(rearX, y2);
-      ctx.strokeStyle = '#007acc';
-      ctx.lineWidth = 4;
+      ctx.moveTo(100, 125 - S1 * 100); // motor
+      ctx.lineTo(400, 125 - S2 * 100); // pump
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 3;
       ctx.stroke();
 
-      ctx.fillStyle = '#000';
-      ctx.fillText(`Front Foot (${s1.toFixed(3)} in)`, frontX - 50, y1 - 10);
-      ctx.fillText(`Rear Foot (${s2.toFixed(3)} in)`, rearX - 50, y2 - 10);
+      ctx.beginPath();
+      ctx.moveTo(100, 125);
+      ctx.lineTo(100, 125 - 20);
+      ctx.moveTo(400, 125);
+      ctx.lineTo(400, 125 - 20);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   </script>
 </body>
