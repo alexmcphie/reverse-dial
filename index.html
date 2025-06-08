@@ -1,14 +1,153 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AlignPro Elite - Full Version</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlignPro Elite - Reverse Indicator Method</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+    h1 { text-align: center; color: #003366; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select { width: 100%; padding: 6px; margin-top: 5px; }
+    button { margin-top: 15px; padding: 10px 20px; font-weight: bold; }
+    .results { background: #eef; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1.1em; }
+    canvas { display: block; margin: 20px auto; border: 1px solid #ccc; }
+    .smiley { font-size: 2rem; text-align: center; }
+  </style>
 </head>
 <body>
-  <h1>AlignPro Elite</h1>
-  <p>✅ Full-featured shaft alignment tool loaded.</p>
-  <p>Includes: Shaft visuals, VO/HO/VA/HA, thermal growth diff, ANSI/API logic, dial sag, shim instructions, smiley status, and mobile optimization.</p>
+  <h1>AlignPro Elite - Reverse Indicator Method</h1>
+
+  <div class="section">
+    <h2>Geometry & Readings</h2>
+    <label>Distance between contact points (A) [in]: <input id="a" type="number" step="0.001" value="6"></label>
+    <label>Distance to front foot (B) [in]: <input id="b" type="number" step="0.001" value="11.5"></label>
+    <label>Distance to rear foot (C) [in]: <input id="c" type="number" step="0.001" value="20"></label>
+
+    <h3>Motor-Mounted Dial Readings</h3>
+    <label>12 o'clock: <input id="motor12" type="number" step="0.001"></label>
+    <label>3 o'clock: <input id="motor3" type="number" step="0.001"></label>
+    <label>6 o'clock: <input id="motor6" type="number" step="0.001"></label>
+    <label>9 o'clock: <input id="motor9" type="number" step="0.001"></label>
+
+    <h3>Pump-Mounted Dial Readings</h3>
+    <label>12 o'clock: <input id="pump12" type="number" step="0.001"></label>
+    <label>3 o'clock: <input id="pump3" type="number" step="0.001"></label>
+    <label>6 o'clock: <input id="pump6" type="number" step="0.001"></label>
+    <label>9 o'clock: <input id="pump9" type="number" step="0.001"></label>
+  </div>
+
+  <div class="section">
+    <h2>Thermal Growth Compensation</h2>
+    <label><input type="checkbox" id="enableThermal"> Enable Thermal Growth</label>
+    <label>Motor Height to Shaft Center (in): <input id="motorHeight" type="number" step="0.001"></label>
+    <label>Motor Temp Rise (°F): <input id="motorTemp" type="number"></label>
+    <label>Motor Material:
+      <select id="motorMat">
+        <option value="6.5e-6">Cast Steel</option>
+        <option value="5.5e-6">Cast Iron</option>
+        <option value="9.6e-6">Stainless Steel 316</option>
+      </select>
+    </label>
+    <label>Pump Height to Shaft Center (in): <input id="pumpHeight" type="number" step="0.001"></label>
+    <label>Pump Temp Rise (°F): <input id="pumpTemp" type="number"></label>
+    <label>Pump Material:
+      <select id="pumpMat">
+        <option value="6.5e-6">Cast Steel</option>
+        <option value="5.5e-6">Cast Iron</option>
+        <option value="9.6e-6">Stainless Steel 316</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="section">
+    <button onclick="calculateReverseAlignment()">Calculate Alignment</button>
+  </div>
+
+  <div class="section results">
+    <h3>Results:</h3>
+    <p>Front Foot Shim (S1): <span id="s1"></span> in</p>
+    <p>Rear Foot Shim (S2): <span id="s2"></span> in</p>
+    <p class="smiley" id="smiley"></p>
+    <canvas id="shaftCanvas" width="600" height="200"></canvas>
+  </div>
+
+  <script>
+    function calculateReverseAlignment() {
+      const A = parseFloat(document.getElementById('a').value);
+      const B = parseFloat(document.getElementById('b').value);
+      const C = parseFloat(document.getElementById('c').value);
+      const D1 = parseFloat(document.getElementById('motor6').value); // Simulate D1 from motor 6 o'clock
+      const D2 = parseFloat(document.getElementById('pump6').value);  // Simulate D2 from pump 6 o'clock
+
+      const enableThermal = document.getElementById('enableThermal').checked;
+      let thermalOffset = 0;
+
+      if (enableThermal) {
+        const mh = parseFloat(document.getElementById('motorHeight').value);
+        const mt = parseFloat(document.getElementById('motorTemp').value);
+        const mm = parseFloat(document.getElementById('motorMat').value);
+
+        const ph = parseFloat(document.getElementById('pumpHeight').value);
+        const pt = parseFloat(document.getElementById('pumpTemp').value);
+        const pm = parseFloat(document.getElementById('pumpMat').value);
+
+        if (!isNaN(mh) && !isNaN(mt) && !isNaN(mm) && !isNaN(ph) && !isNaN(pt) && !isNaN(pm)) {
+          const motorGrowth = mh * mt * mm;
+          const pumpGrowth = ph * pt * pm;
+          thermalOffset = motorGrowth - pumpGrowth;
+        }
+      }
+
+      if (isNaN(A) || isNaN(B) || isNaN(C) || isNaN(D1) || isNaN(D2)) {
+        alert('Please enter all alignment values correctly.');
+        return;
+      }
+
+      let s1 = ((B + A) * ((D1 + D2 + 2) / (D1 + 2))) - 1;
+      let s2 = ((C + A) * ((D1 + D2 + 2) / (D1 + 2))) - 1;
+
+      s1 += thermalOffset;
+      s2 += thermalOffset;
+
+      document.getElementById('s1').textContent = s1.toFixed(4);
+      document.getElementById('s2').textContent = s2.toFixed(4);
+
+      const smiley = document.getElementById('smiley');
+      if (Math.abs(s1) <= 0.002 && Math.abs(s2) <= 0.002) {
+        smiley.textContent = '😊 (In Tolerance)';
+      } else {
+        smiley.textContent = '😟 (Out of Tolerance)';
+      }
+
+      drawShaft(s1, s2);
+    }
+
+    function drawShaft(s1, s2) {
+      const canvas = document.getElementById('shaftCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerY = 100;
+      const frontX = 150;
+      const rearX = 450;
+      const scale = 500;
+
+      const y1 = centerY - s1 * scale;
+      const y2 = centerY - s2 * scale;
+
+      ctx.beginPath();
+      ctx.moveTo(frontX, y1);
+      ctx.lineTo(rearX, y2);
+      ctx.strokeStyle = '#007acc';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.fillStyle = '#000';
+      ctx.fillText(`Front Foot (${s1.toFixed(3)} in)`, frontX - 50, y1 - 10);
+      ctx.fillText(`Rear Foot (${s2.toFixed(3)} in)`, rearX - 50, y2 - 10);
+    }
+  </script>
 </body>
 </html>
