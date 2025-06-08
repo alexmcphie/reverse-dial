@@ -3,103 +3,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AlignPro Elite - Reverse Indicator Method</title>
+  <title>Reverse Indicator Method</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
       padding: 20px;
-      background-color: #f4f4f4;
-      color: #333;
     }
     h1, h2, h3 {
       text-align: center;
     }
+    .section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
     label {
+      display: block;
+      margin-top: 10px;
       font-weight: bold;
     }
     input, select {
       width: 100%;
-      padding: 5px;
-      margin: 5px 0 15px 0;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
     }
-    .section {
-      background: white;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .results {
-      background: #eef;
-      padding: 10px;
-      font-weight: bold;
+    button {
+      display: block;
+      margin: 0 auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
     }
     canvas {
       display: block;
-      margin: 0 auto;
+      margin: 20px auto;
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+    .results {
+      font-weight: bold;
+      font-size: 16px;
+      background-color: #eef;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <h1>AlignPro Elite - Reverse Indicator Method</h1>
+  <h1>Reverse Indicator Method</h1>
 
   <div class="section">
-    <h2>Geometry & Readings</h2>
-    <label>Distance between contact points (A) [in]:</label>
-    <input id="distA" type="number" step="0.001">
+    <h2>Dimensions - Set both dials at 12 o'clock and "zero"</h2>
+    <label>Distance between contact points on dials (A) [in]:</label>
+    <input id="a" type="number" step="0.001" value="6">
 
-    <label>Distance to front foot (B) [in]:</label>
-    <input id="distB" type="number" step="0.001">
+    <label>Distance to front foot to dial point on driven (furthest dial)(B) [in]:</label>
+    <input id="b" type="number" step="0.001" value="11.5">
 
-    <label>Distance to rear foot (C) [in]:</label>
-    <input id="distC" type="number" step="0.001">
+    <label>Distance to rear foot to dial point on driven (further dial) (C) [in]:</label>
+    <input id="c" type="number" step="0.001" value="20">
 
     <label>Machine RPM:</label>
-    <input id="rpm" type="number">
+    <input id="rpm" type="number" step="1" value="3600">
+
+    <label>Coupling Diameter (circumference/3.1416)[in]:</label>
+    <input id="coupling" type="number" step="0.1" value="4">
+
+    <h3>Motor-Mounted Dial Readings (Driver - motor - turbine) </h3>
+    <label>12 o'clock:</label><input id="m12" type="number" step="0.001" value="0">
+    <label>3 o'clock:</label><input id="m3" type="number" step="0.001" value="0.006">
+    <label>6 o'clock:</label><input id="m6" type="number" step="0.001" value="0.025">
+    <label>9 o'clock:</label><input id="m9" type="number" step="0.001" value="-0.006">
+
+    <h3>Pump-Mounted Dial Readings (Driven - pump - gearbox)</h3>
+    <label>12 o'clock:</label><input id="p12" type="number" step="0.001" value="0">
+    <label>3 o'clock:</label><input id="p3" type="number" step="0.001" value="-0.003">
+    <label>6 o'clock:</label><input id="p6" type="number" step="0.001" value="-0.008">
+    <label>9 o'clock:</label><input id="p9" type="number" step="0.001" value="0.004">
   </div>
 
   <div class="section">
-    <h2>Motor-Mounted Dial Readings</h2>
-    <label>12 o'clock:</label><input id="mm12" type="number" step="0.001">
-    <label>3 o'clock:</label><input id="mm3" type="number" step="0.001">
-    <label>6 o'clock:</label><input id="mm6" type="number" step="0.001">
-    <label>9 o'clock:</label><input id="mm9" type="number" step="0.001">
-  </div>
+    <label><input id="enableThermal" type="checkbox" checked> Enable Thermal Growth</label>
 
-  <div class="section">
-    <h2>Pump-Mounted Dial Readings</h2>
-    <label>12 o'clock:</label><input id="pm12" type="number" step="0.001">
-    <label>3 o'clock:</label><input id="pm3" type="number" step="0.001">
-    <label>6 o'clock:</label><input id="pm6" type="number" step="0.001">
-    <label>9 o'clock:</label><input id="pm9" type="number" step="0.001">
-  </div>
-
-  <div class="section">
-    <h2>Thermal Growth Compensation</h2>
-    <label><input id="enableThermal" type="checkbox"> Enable Thermal Growth</label><br>
-
-    <label>Motor Height to Shaft Center (in):</label>
-    <input id="motorHeight" type="number" step="0.001">
+    <label>Motor Height from bottom of foot to Shaft Center (in):</label>
+    <input id="motorHeight" type="number" value="7">
 
     <label>Motor Temp Rise (°F):</label>
-    <input id="motorTempRise" type="number">
+    <input id="motorTemp" type="number" value="35">
 
     <label>Motor Material:</label>
-    <select id="motorMaterial">
+    <select id="motorMat">
       <option>Cast Steel</option>
       <option>Cast Iron</option>
       <option>Stainless Steel 316</option>
     </select>
 
-    <label>Pump Height to Shaft Center (in):</label>
-    <input id="pumpHeight" type="number" step="0.001">
+    <label>Pump Height from bottom of foot to Shaft Center (in):</label>
+    <input id="pumpHeight" type="number" value="9">
 
     <label>Pump Temp Rise (°F):</label>
-    <input id="pumpTempRise" type="number">
+    <input id="pumpTemp" type="number" value="75">
 
     <label>Pump Material:</label>
-    <select id="pumpMaterial">
+    <select id="pumpMat">
       <option>Cast Steel</option>
       <option>Cast Iron</option>
       <option>Stainless Steel 316</option>
@@ -107,94 +123,92 @@
   </div>
 
   <div class="section">
-    <button onclick="calculateAlignment()">Calculate Alignment</button>
+    <button onclick="calculate()">Calculate Alignment</button>
   </div>
 
-  <div class="section results" id="results">
-    <h3>Results</h3>
-    <p>Awaiting input...</p>
-  </div>
+  <div class="section results" id="results"></div>
 
-  <canvas id="alignmentGraph" width="500" height="250"></canvas>
+  <canvas id="verticalGraph" width="500" height="200"></canvas>
+  <canvas id="horizontalGraph" width="500" height="200"></canvas>
 
   <script>
-    const thermalExpansionCoefficients = {
+    const coeffs = {
       "Cast Steel": 6.5e-6,
-      "Cast Iron": 5.5e-6,
+      "Cast Iron": 5.8e-6,
       "Stainless Steel 316": 9.6e-6
     };
 
-    function calculateAlignment() {
-      const A = parseFloat(document.getElementById("distA").value);
-      const B = parseFloat(document.getElementById("distB").value);
-      const C = parseFloat(document.getElementById("distC").value);
-      const rpm = parseFloat(document.getElementById("rpm").value);
-
-      const mm6 = parseFloat(document.getElementById("mm6").value);
-      const pm6 = parseFloat(document.getElementById("pm6").value);
-
-      const enableThermal = document.getElementById("enableThermal").checked;
-      const mHeight = parseFloat(document.getElementById("motorHeight").value);
-      const mRise = parseFloat(document.getElementById("motorTempRise").value);
-      const mMat = document.getElementById("motorMaterial").value;
-      const pHeight = parseFloat(document.getElementById("pumpHeight").value);
-      const pRise = parseFloat(document.getElementById("pumpTempRise").value);
-      const pMat = document.getElementById("pumpMaterial").value;
-
-      const delta = mm6 - pm6;
-      const VA = delta / A;
-      const S1 = VA * B;
-      const S2 = VA * C;
-      const VO = S1;
-
-      const HA = (parseFloat(document.getElementById("mm3").value) - parseFloat(document.getElementById("mm9").value)) / A;
-      const HO = (parseFloat(document.getElementById("mm3").value) + parseFloat(document.getElementById("mm9").value)) / 2;
-
-      let tMotor = 0, tPump = 0, tDiff = 0;
-      if (enableThermal) {
-        tMotor = thermalExpansionCoefficients[mMat] * mRise * mHeight;
-        tPump = thermalExpansionCoefficients[pMat] * pRise * pHeight;
-        tDiff = tPump - tMotor;
-      }
-
-      const voTol = rpm >= 3600 ? 0.001 : rpm >= 1800 ? 0.002 : 0.003;
-      const vaTol = 0.001;
-      const hoTol = voTol;
-      const haTol = 0.001;
-
-      const inTolerance = Math.abs(VO) <= voTol && Math.abs(VA) <= vaTol && Math.abs(HO) <= hoTol && Math.abs(HA) <= haTol;
-
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = `
-        <p>Front Foot Shim (S1): ${(S1 - tDiff).toFixed(4)} in</p>
-        <p>Rear Foot Shim (S2): ${(S2 - tDiff).toFixed(4)} in</p>
-        <p>Thermal Growth Motor: ${tMotor.toFixed(5)} in</p>
-        <p>Thermal Growth Pump: ${tPump.toFixed(5)} in</p>
-        <p>Thermal Growth Diff: ${tDiff.toFixed(5)} in</p>
-        <p>VO: ${VO.toFixed(4)} in</p>
-        <p>VA: ${VA.toFixed(4)} in/in</p>
-        <p>HO: ${HO.toFixed(4)} in</p>
-        <p>HA: ${HA.toFixed(4)} in/in</p>
-        <p>${inTolerance ? "✅ In Tolerance 😊" : "😟 (Out of Tolerance)"}</p>
-      `;
-
-      const ctx = document.getElementById("alignmentGraph").getContext("2d");
-      ctx.clearRect(0, 0, 500, 250);
+    function drawGraph(ctx, title, offset, angularity) {
+      ctx.clearRect(0, 0, 500, 200);
+      ctx.fillText(title, 10, 20);
       ctx.beginPath();
-      ctx.moveTo(100, 125 - S1 * 100); // motor
-      ctx.lineTo(400, 125 - S2 * 100); // pump
+      ctx.moveTo(100, 100 - offset * 1000);
+      ctx.lineTo(400, 100 + angularity * 1000);
       ctx.strokeStyle = "blue";
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(100, 125);
-      ctx.lineTo(100, 125 - 20);
-      ctx.moveTo(400, 125);
-      ctx.lineTo(400, 125 - 20);
-      ctx.strokeStyle = "black";
       ctx.lineWidth = 2;
       ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(100, 90);
+      ctx.lineTo(100, 110);
+      ctx.moveTo(400, 90);
+      ctx.lineTo(400, 110);
+      ctx.strokeStyle = "black";
+      ctx.stroke();
+    }
+
+    function calculate() {
+      const a = parseFloat(document.getElementById('a').value);
+      const b = parseFloat(document.getElementById('b').value);
+      const c = parseFloat(document.getElementById('c').value);
+      const rpm = parseFloat(document.getElementById('rpm').value);
+      const coupling = parseFloat(document.getElementById('coupling').value);
+      const m6 = parseFloat(document.getElementById('m6').value);
+      const p6 = parseFloat(document.getElementById('p6').value);
+      const hor = parseFloat(document.getElementById('m3').value) - parseFloat(document.getElementById('m9').value);
+      const ho = hor / 2;
+      const ha = hor / a;
+
+      const vert = (m6 + p6) / 2;
+      const vo = vert;
+      const va = vert / a;
+
+      let shim1 = vo * b / a;
+      let shim2 = vo * c / a;
+
+      let growthDiff = 0, growthM = 0, growthP = 0;
+      if (document.getElementById('enableThermal').checked) {
+        const mh = parseFloat(document.getElementById('motorHeight').value);
+        const mt = parseFloat(document.getElementById('motorTemp').value);
+        const mm = document.getElementById('motorMat').value;
+        const ph = parseFloat(document.getElementById('pumpHeight').value);
+        const pt = parseFloat(document.getElementById('pumpTemp').value);
+        const pm = document.getElementById('pumpMat').value;
+        growthM = coeffs[mm] * mh * mt;
+        growthP = coeffs[pm] * ph * pt;
+        growthDiff = growthM - growthP;
+        shim1 -= growthDiff;
+        shim2 -= growthDiff;
+      }
+
+      const inTol = Math.abs(vo) <= 0.002 && Math.abs(va) <= 0.001 && Math.abs(ho) <= 0.002 && Math.abs(ha) <= 0.001;
+      const emoji = inTol ? "😊" : "😟";
+
+      document.getElementById('results').innerText =
+        `Positive values mean add shims \n` +
+        `Negative values mean remove shims \n\n` +
+        `Front Foot Shim (S1): ${shim1.toFixed(4)} in\n` +
+        `Rear Foot Shim (S2): ${shim2.toFixed(4)} in\n\n` +
+        `Thermal Growth (Motor): ${growthM.toFixed(4)} in\n` +
+        `Thermal Growth (Pump): ${growthP.toFixed(4)} in\n` +
+        `Thermal Growth Diff: ${growthDiff.toFixed(4)} in\n\n` +
+        `VO: ${vo.toFixed(4)} in\n` +
+        `VA: ${va.toFixed(4)} in/in\n` +
+        `HO: ${ho.toFixed(4)} in\n` +
+        `HA: ${ha.toFixed(4)} in/in\n\n` +
+        `${inTol ? '✅ In Tolerance' : '❌ Out of Tolerance'}\n\n${emoji}`;
+
+      drawGraph(document.getElementById('verticalGraph').getContext('2d'), "Vertical Alignment", vo, va);
+      drawGraph(document.getElementById('horizontalGraph').getContext('2d'), "Horizontal Alignment", ho, ha);
     }
   </script>
 </body>
